@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="3bl-ZM-8G9">
+    <device id="retina6_1" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Navigation Controller-->
+        <scene sceneID="eZl-62-ML2">
+            <objects>
+                <navigationController id="3bl-ZM-8G9" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="k6w-C9-TFx">
+                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="35g-fS-fP6"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="rVp-yh-WQP" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-616" y="102"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5zO-Ta-kKJ">
+                                <rect key="frame" x="189.5" y="433" width="35" height="30"/>
+                                <state key="normal" title="Push"/>
+                                <connections>
+                                    <segue destination="YdC-BT-FX4" kind="push" id="7ql-h7-s6i"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QVM-p7-6Sr">
+                                <rect key="frame" x="177.5" y="499" width="59" height="30"/>
+                                <state key="normal" title="Identical"/>
+                                <connections>
+                                    <action selector="IdenticalAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="kps-NY-MK6"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="QVM-p7-6Sr" firstAttribute="top" secondItem="5zO-Ta-kKJ" secondAttribute="bottom" constant="36" id="3CR-Hw-F3j"/>
+                            <constraint firstItem="5zO-Ta-kKJ" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Cdd-tl-CR9"/>
+                            <constraint firstItem="QVM-p7-6Sr" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Nh6-B2-CWY"/>
+                            <constraint firstItem="5zO-Ta-kKJ" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="qDL-Nl-3r0"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="kgy-eM-1Jj"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="107" y="102"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="Luj-Xf-Ess">
+            <objects>
+                <viewController id="YdC-BT-FX4" customClass="ViewController" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="F8z-ye-wRT">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uer-03-t8Z">
+                                <rect key="frame" x="189.5" y="433" width="35" height="30"/>
+                                <state key="normal" title="Push"/>
+                                <connections>
+                                    <segue destination="BYZ-38-t0r" kind="push" id="bDY-zL-ycQ"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SXf-1C-u85">
+                                <rect key="frame" x="177.5" y="499" width="59" height="30"/>
+                                <state key="normal" title="Identical"/>
+                                <connections>
+                                    <action selector="IdenticalAction:" destination="YdC-BT-FX4" eventType="touchUpInside" id="H0R-uN-y8t"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="SXf-1C-u85" firstAttribute="centerX" secondItem="F8z-ye-wRT" secondAttribute="centerX" id="2pY-Cd-Cm2"/>
+                            <constraint firstItem="uer-03-t8Z" firstAttribute="centerX" secondItem="F8z-ye-wRT" secondAttribute="centerX" id="ObC-Je-xkD"/>
+                            <constraint firstItem="SXf-1C-u85" firstAttribute="top" secondItem="uer-03-t8Z" secondAttribute="bottom" constant="36" id="Rrr-42-Egw"/>
+                            <constraint firstItem="uer-03-t8Z" firstAttribute="centerY" secondItem="F8z-ye-wRT" secondAttribute="centerY" id="U1Z-nk-2Sb"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="Z9f-ve-n42"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="Vom-2L-lhk"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="J9o-jI-y9P" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="913" y="102"/>
+        </scene>
+    </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="bDY-zL-ycQ"/>
+    </inferredMetricsTieBreakers>
+</document>
