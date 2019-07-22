@@ -15,12 +15,12 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)identicalWithClass:(Class)cls property:(SEL)property;
 - (void)addObject:(ObjectType)object;
 
-- (void)identicalWithObject:(ObjectType)object usingBlock:(void(^)(ObjectType from, ObjectType to))block;
-- (void)identicalWithObject:(id)object;
+- (void)identicalWithObject:(ObjectType)object usingBlock:(void(^)(ObjectType from, ObjectType to))block completion:(void(^_Nullable)(void))completion;
+- (void)identicalWithObject:(id)object completion:(void(^_Nullable)(void))completion;
 @end
 
 @interface Identical<ObjectType> (Auto)
-+ (instancetype)identicalWithClass:(Class)cls property:(SEL)property auto:(void(^)(ObjectType from, ObjectType to))block;
++ (instancetype)identicalWithClass:(Class)cls property:(SEL)property auto:(void(^)(ObjectType from, ObjectType to))block completion:(void(^_Nullable)(ObjectType from))completion;
 @end
 NS_ASSUME_NONNULL_END
 

@@ -21,6 +21,7 @@
     InfoClass *infoClass = [InfoClass new];
     [[IdenticalManager share].infoClass addObject:infoClass];
     [[IdenticalManager share].infoClass addObject:infoClass];
+
 //    self.infoClass = [InfoClass new];
 //    self.infoClass.uid = self.navigationController.viewControllers.count % 3;
 //    self.infoClass.str = [NSString stringWithFormat:@"str_ %d", self.infoClass.uid];
@@ -36,6 +37,8 @@
     infoClass.str = @"123456";
     [[IdenticalManager share].infoClass identicalWithObject:infoClass usingBlock:^(InfoClass * _Nonnull from, InfoClass * _Nonnull to) {
         to.str = from.str;
+    } completion:^{
+        
     }];
 }
 
