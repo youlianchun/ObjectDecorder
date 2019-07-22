@@ -177,13 +177,15 @@ static kPropertyType getPropertyType(Class cls, SEL property) {
 }
 
 - (void)addObject:(id)object {
-    [self identicalWithObject:object completion:_completion];
+    [super identicalWithObject:object usingBlock:_autoIdentical completion:^{
+        self->_completion(object);
+    }];
     [super addObject:object];
 }
 
-- (void)identicalWithObject:(id)object completion:(void(^)(id from))completion {
+- (void)identicalWithObject:(id)object completion:(void(^)(void))completion {
     [super identicalWithObject:object usingBlock:_autoIdentical completion:^{
-        completion(object);
+        completion();
     }];
 }
 

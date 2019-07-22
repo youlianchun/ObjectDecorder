@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface AutoIdentical<ObjectType> : Identical
 + (instancetype)identicalWithClass:(Class)cls property:(SEL)property auto:(void(^)(ObjectType from, ObjectType to))block completion:(void(^_Nullable)(ObjectType from))completion;
 
-- (void)identicalWithObject:(id)object completion:(void(^_Nullable)(ObjectType from))completion;
+- (void)identicalWithObject:(id)object completion:(void(^_Nullable)(void))completion;
 @end
 NS_ASSUME_NONNULL_END
 
