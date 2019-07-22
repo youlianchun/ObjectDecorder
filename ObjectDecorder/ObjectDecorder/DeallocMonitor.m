@@ -105,10 +105,12 @@ typedef void (*INVOKE)(id, SEL, id);
 
 - (void)addDMInvocation:(DMInvocation *)invocation {
     if (!invocation) return;
-    if (!self.dmDecorder) {
-        self.dmDecorder = [[DMDecorder alloc] initWithSender:self];
+    DMDecorder *dmDecorder = self.dmDecorder;
+    if (!dmDecorder) {
+        dmDecorder = [[DMDecorder alloc] initWithSender:self];
+        self.dmDecorder = dmDecorder;
     }
-    [self.dmDecorder addInvocation:invocation];
+    [dmDecorder addInvocation:invocation];
 }
 
 - (void)removeDMInvocation:(DMInvocation *)invocation {
