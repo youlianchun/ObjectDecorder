@@ -139,19 +139,15 @@ static kPropertyType getPropertyType(Class cls, SEL property) {
     NSString *key = [self keyWithObject:object];
     if (key.length == 0) return;
     dispatch_async(_queue, ^{
-        __block BOOL non = NO;
+        __block BOOL flag = NO;
         [self->_decorder ergodicObjectWithKey:key callback:^(id  _Nonnull obj) {
-            if ([obj isEqual:object]) {
-                non = YES;
-                return;
-            }
+            if ([obj isEqual:object]) return;
+            flag = YES;
             block(object, obj);
         }];
-        if (non) return;
+        if (!flag || !completion) return;
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (completion) {
-                completion();
-            }
+            completion();
         });
     });
 }
