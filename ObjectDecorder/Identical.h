@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)identicalWithObject:(id)object completion:(void(^_Nullable)(void))completion;
 @end
+
 NS_ASSUME_NONNULL_END
 
 
