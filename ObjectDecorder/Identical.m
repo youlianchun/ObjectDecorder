@@ -9,7 +9,6 @@
 #import "Identical.h"
 #import "ObjectDecorder.h"
 #import <objc/runtime.h>
-#import "YYModel.h"
 
 typedef enum  {
     kProperty_Number,
@@ -27,8 +26,6 @@ typedef enum  {
     SEL _property;
     kPropertyType _type;
     NSString *_keyPath;
-    void(^_autoIdentical)(id from, id to);
-    void(^_completion)(id from);
     dispatch_queue_t _queue;
 }
 
@@ -122,14 +119,6 @@ static kPropertyType getPropertyType(Class cls, SEL property) {
     return type;
 }
 
-- (void)setAutoIdentical:(void(^)(id from, id to))block {
-    _autoIdentical = block;
-}
-
-- (void)setCompletion:(void(^)(id from))block {
-    _completion = block;
-}
-
 - (NSString *)keyWithObject:(id)object {
     if (![object isKindOfClass:_cls]) return nil;
     id val = [object valueForKeyPath:_keyPath];
@@ -140,9 +129,6 @@ static kPropertyType getPropertyType(Class cls, SEL property) {
 - (void)addObject:(id)object {
     NSString *key = [self keyWithObject:object];
     if (key.length == 0) return;
-    if (_autoIdentical) {
-        [self identicalWithObject:object usingBlock:_autoIdentical completion:nil];
-    }
     dispatch_async(_queue, ^{
         [self->_decorder addObject:object key:key];
     });
@@ -166,34 +152,43 @@ static kPropertyType getPropertyType(Class cls, SEL property) {
             if (completion) {
                 completion();
             }
-            else if(self->_completion) {
-                self->_completion(object);
-            }
         });
     });
-}
-
-- (void)identicalWithObject:(id)object completion:(void(^)(void))completion {
-    if (_autoIdentical) {
-        [self identicalWithObject:object usingBlock:_autoIdentical completion:completion];
-    }
-    else {
-        [self identicalWithObject:object usingBlock:^(id  _Nonnull from, id  _Nonnull to) {
-            [to yy_modelSetWithJSON:[from yy_modelToJSONString]];
-        } completion:completion];
-    }
 }
 
 @end
 
 
-@implementation Identical (Auto)
+@implementation AutoIdentical
+{
+    void(^_autoIdentical)(id from, id to);
+    void(^_completion)(id from);
+}
 
 + (instancetype)identicalWithClass:(Class)cls property:(SEL)property auto:(void(^)(id from, id to))block completion:(void(^)(id from))completion {
-    Identical *identical = [self identicalWithClass:cls property:property];
-    [identical setAutoIdentical:block];
-    [identical setCompletion:completion];
-    return identical;
+    AutoIdentical *ai = [super identicalWithClass:cls property:property];
+    [ai setAutoIdentical:block];
+    [ai setCompletion:completion];
+    return ai;
+}
+
+- (void)setAutoIdentical:(void(^)(id from, id to))block {
+    _autoIdentical = block;
+}
+
+- (void)setCompletion:(void(^)(id from))block {
+    _completion = block;
+}
+
+- (void)addObject:(id)object {
+    [self identicalWithObject:object completion:_completion];
+    [super addObject:object];
+}
+
+- (void)identicalWithObject:(id)object completion:(void(^)(id from))completion {
+    [super identicalWithObject:object usingBlock:_autoIdentical completion:^{
+        completion(object);
+    }];
 }
 
 @end
