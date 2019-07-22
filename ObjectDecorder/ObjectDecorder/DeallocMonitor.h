@@ -8,11 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
-@interface DeallocMonitor : NSObject
+@interface DeallocMonitor<ObjectType> : NSObject
 @property (nonatomic, readonly) NSString *dmId;
-@property (nonatomic, weak, readonly) id obj;
+@property (nonatomic, weak, readonly) ObjectType obj;
 @property (nonatomic, readonly) NSString *objId;
 
-+ (instancetype)monitorWithObj:(id)obj objDelloc:(void(^)(DeallocMonitor *dm))monitor;
++ (instancetype)monitorWithObj:(ObjectType)obj objDelloc:(void(^)(DeallocMonitor *dm))monitor;
 - (void)invalidate;
 @end
