@@ -51,6 +51,7 @@ typedef void (*INVOKE)(id, SEL, id);
 
 @end
 
+#pragma mark -
 
 @interface DMDecorder : NSObject
 @end
@@ -87,6 +88,7 @@ typedef void (*INVOKE)(id, SEL, id);
 
 @end
 
+#pragma mark -
 
 @interface NSObject (DeallocMonitor)
 @property (nonatomic, strong) DMDecorder *dmDecorder;
@@ -116,6 +118,7 @@ typedef void (*INVOKE)(id, SEL, id);
 
 @end
 
+#pragma mark -
 
 @implementation DeallocMonitor
 {

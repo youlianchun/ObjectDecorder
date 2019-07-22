@@ -28,6 +28,7 @@ typedef enum  {
     kPropertyType _type;
     NSString *_keyPath;
     void(^_autoIdentical)(id from, id to);
+    dispatch_queue_t _queue;
 }
 
 + (instancetype)identicalWithClass:(Class)cls property:(SEL)property  {
@@ -51,6 +52,7 @@ typedef enum  {
         _type = type;
         _keyPath = NSStringFromSelector(property);
         _decorder = [ObjectDecorder new];
+        _queue = dispatch_queue_create("com.queue.identical", DISPATCH_QUEUE_SERIAL);
     }
     return self;
 }
@@ -136,23 +138,32 @@ static kPropertyType getPropertyType(Class cls, SEL property) {
     if (_autoIdentical) {
         [self identicalWithObject:object usingBlock:_autoIdentical];
     }
-    [_decorder addObject:object key:key];
+    dispatch_async(_queue, ^{
+        [self->_decorder addObject:object key:key];
+    });
 }
 
 - (void)identicalWithObject:(id)object usingBlock:(void(^)(id from, id to))block {
     if (!block) return;
     NSString *key = [self keyWithObject:object];
     if (key.length == 0) return;
-    [_decorder ergodicObjectWithKey:key callback:^(id  _Nonnull obj) {
-        if ([obj isEqual:object]) return;
-        block(object, obj);
-    }];
+    dispatch_async(_queue, ^{
+        [self->_decorder ergodicObjectWithKey:key callback:^(id  _Nonnull obj) {
+            if ([obj isEqual:object]) return;
+            block(object, obj);
+        }];
+    });
 }
 
 - (void)identicalWithObject:(id)object {
-    [self identicalWithObject:object usingBlock:^(id  _Nonnull from, id  _Nonnull to) {
-        [to yy_modelSetWithJSON:[from yy_modelToJSONString]];
-    }];
+    if (_autoIdentical) {
+        [self identicalWithObject:object usingBlock:_autoIdentical];
+    }
+    else {
+        [self identicalWithObject:object usingBlock:^(id  _Nonnull from, id  _Nonnull to) {
+            [to yy_modelSetWithJSON:[from yy_modelToJSONString]];
+        }];
+    }
 }
 
 @end

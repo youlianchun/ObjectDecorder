@@ -9,50 +9,75 @@
 #import "ObjectDecorder.h"
 #import "DeallocMonitor.h"
 
-@interface ObjectDecorder()
-@property (nonatomic, copy) NSMutableDictionary <NSString *, NSMutableDictionary<NSString *, DeallocMonitor *> *> *dict;
-@end
-
 @implementation ObjectDecorder
+{
+    NSMutableDictionary <NSString *, NSMutableDictionary<NSString *, DeallocMonitor *> *> *_dict;
+    NSLock *_lock;
+}
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _dict = [NSMutableDictionary dictionary];
+        _lock = [NSLock new];
+    }
+    return self;
+}
+
+#pragma mark -
 
 - (void)addObject:(id)object key:(NSString *)key {
     if (!object || !key) return;
-    NSMutableDictionary *dict = [self subDict:key];
     __weak typeof(self) wself = self;
     DeallocMonitor *dm = [DeallocMonitor monitorWithObj:object objDelloc:^(DeallocMonitor *dm){
-        dict[dm.objId] = nil;
-        if (dict.count == 0) {
-            wself.dict[key] = nil;
-        }
+        [wself removeDM:dm key:key];
     }];
-    if (dict[dm.objId]) {
-        [dm invalidate];
-        return;
-    }
-    dict[dm.objId] = dm;
+    [self addDM:dm key:key];
 }
 
 - (void)ergodicObjectWithKey:(NSString *)key callback:(void(^)(id obj))callback {
     if (!callback || !key) return;
-    [self.dict[key] enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, DeallocMonitor * _Nonnull obj, BOOL * _Nonnull stop) {
+    [[self dmsWithKey:key] enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, DeallocMonitor * _Nonnull obj, BOOL * _Nonnull stop) {
         callback(obj.obj);
     }];
 }
 
-- (NSMutableDictionary <NSString *, DeallocMonitor*> *)subDict:(NSString *)key {
-    NSMutableDictionary *dict = self.dict[key];
+#pragma mark -
+
+- (void)addDM:(DeallocMonitor *)dm key:(NSString *)key {
+    [_lock lock];
+    NSMutableDictionary *dict = _dict[key];
     if (!dict) {
         dict = [NSMutableDictionary dictionary];
-        self.dict[key] = dict;
+        _dict[key] = dict;
     }
-    return dict;
+    
+    if (dict[dm.objId]) {
+        [dm invalidate];
+    } else {
+        dict[dm.objId] = dm;
+    }
+    [_lock unlock];
 }
 
-- (NSMutableDictionary *)dict {
-    if (!_dict) {
-        _dict = [NSMutableDictionary dictionary];
+- (void)removeDM:(DeallocMonitor *)dm key:(NSString *)key {
+    [_lock lock];
+    NSMutableDictionary *dict = _dict[key];
+    if (dict) {
+        dict[dm.objId] = nil;
+        if (dict.count == 0) {
+            _dict[key] = nil;
+        }
     }
-    return _dict;
+    [_lock unlock];
+}
+
+- (NSDictionary<NSString *, DeallocMonitor *> *)dmsWithKey:(NSString *)key {
+    NSDictionary<NSString *, DeallocMonitor *> *dict;
+    [_lock lock];
+    dict = [_dict[key] copy];
+    [_lock unlock];
+    return dict;
 }
 
 @end
