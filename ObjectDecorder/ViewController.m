@@ -18,16 +18,11 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    InfoClass *infoClass = [InfoClass new];
-    [[IdenticalManager share].infoClass addObject:infoClass];
-    [[IdenticalManager share].infoClass addObject:infoClass];
-
-//    self.infoClass = [InfoClass new];
-//    self.infoClass.uid = self.navigationController.viewControllers.count % 3;
-//    self.infoClass.str = [NSString stringWithFormat:@"str_ %d", self.infoClass.uid];
-//    [[IdenticalManager share].infoClass addObject:self.infoClass];
-//    [[IdenticalManager share].infoClass addObject:self.infoClass];
-
+    self.infoClass = [InfoClass new];
+    self.infoClass.uid = self.navigationController.viewControllers.count % 3;
+    self.infoClass.str = [NSString stringWithFormat:@"str_ %d", self.infoClass.uid];
+    [[IdenticalManager share].infoClass addObject:self.infoClass];
+    self.title = self.infoClass.str;
     // Do any additional setup after loading the view.
 }
 
@@ -37,13 +32,11 @@
     infoClass.str = @"123456";
     [[IdenticalManager share].infoClass identicalWithObject:infoClass usingBlock:^(InfoClass * _Nonnull from, InfoClass * _Nonnull to) {
         to.str = from.str;
-    } completion:^{
-        
-    }];
+    } completion:nil];
 }
 
--(void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
+-(void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
     self.title = self.infoClass.str;
 }
 

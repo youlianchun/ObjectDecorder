@@ -11,7 +11,7 @@
 
 @implementation ObjectDecorder
 {
-    NSMutableDictionary <NSString *, NSMutableDictionary<NSString *, DeallocMonitor *> *> *_dict;
+    NSMutableDictionary <NSString *, NSHashTable *> *_dict;
     NSLock *_lock;
 }
 
@@ -28,56 +28,24 @@
 
 - (void)addObject:(id)object key:(NSString *)key {
     if (!object || !key) return;
-    __weak typeof(self) wself = self;
-    DeallocMonitor *dm = [DeallocMonitor monitorWithObj:object objDelloc:^(DeallocMonitor *dm){
-        [wself removeDM:dm key:key];
-    }];
-    [self addDM:dm key:key];
+    [_lock lock];
+    NSHashTable *table = _dict[key];
+    if (!table) {
+        table = [NSHashTable weakObjectsHashTable];
+        _dict[key] = table;
+    }
+    [table addObject:object];
+    [_lock unlock];
 }
 
 - (void)ergodicObjectWithKey:(NSString *)key callback:(void(^)(id obj))callback {
     if (!callback || !key) return;
-    [[self dmsWithKey:key] enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, DeallocMonitor * _Nonnull obj, BOOL * _Nonnull stop) {
-        callback(obj.obj);
-    }];
-}
-
-#pragma mark -
-
-- (void)addDM:(DeallocMonitor *)dm key:(NSString *)key {
     [_lock lock];
-    NSMutableDictionary *dict = _dict[key];
-    if (!dict) {
-        dict = [NSMutableDictionary dictionary];
-        _dict[key] = dict;
-    }
-    
-    if (dict[dm.objId]) {
-        [dm invalidate];
-    } else {
-        dict[dm.objId] = dm;
-    }
+    NSArray *arr = _dict[key].allObjects;
     [_lock unlock];
-}
-
-- (void)removeDM:(DeallocMonitor *)dm key:(NSString *)key {
-    [_lock lock];
-    NSMutableDictionary *dict = _dict[key];
-    if (dict) {
-        dict[dm.objId] = nil;
-        if (dict.count == 0) {
-            _dict[key] = nil;
-        }
+    for (NSObject *obj in arr) {
+        callback(obj);
     }
-    [_lock unlock];
-}
-
-- (NSDictionary<NSString *, DeallocMonitor *> *)dmsWithKey:(NSString *)key {
-    NSDictionary<NSString *, DeallocMonitor *> *dict;
-    [_lock lock];
-    dict = [_dict[key] copy];
-    [_lock unlock];
-    return dict;
 }
 
 @end

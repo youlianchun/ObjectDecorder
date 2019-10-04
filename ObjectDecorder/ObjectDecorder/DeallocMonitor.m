@@ -12,7 +12,6 @@
 typedef void (*INVOKE)(id, SEL, id);
 
 @interface DMInvocation : NSObject
-@property (nonatomic, readonly) NSString *dmiId;
 + (instancetype)invocationWithTarget:(id)target sel:(SEL)sel;
 @end
 
@@ -20,7 +19,6 @@ typedef void (*INVOKE)(id, SEL, id);
 {
     __weak id _target;
     SEL _sel;
-    NSString *_dmiId;
     INVOKE _invoke;
 }
 
@@ -38,13 +36,6 @@ typedef void (*INVOKE)(id, SEL, id);
     return self;
 }
 
-- (NSString *)dmiId {
-    if (!_dmiId) {
-        _dmiId = [NSString stringWithFormat:@"%ld", self.hash];
-    }
-    return _dmiId;
-}
-
 - (void)invokeWithSender:(id)sender {
     _invoke(_target, _sel, sender);
 }
@@ -58,32 +49,34 @@ typedef void (*INVOKE)(id, SEL, id);
 
 @implementation DMDecorder
 {
-    NSMutableDictionary <NSString*, DMInvocation *> *_monitorDict;
+    NSHashTable <DMInvocation *> *_monitors;
     __weak id _sender;
 }
+
 - (instancetype)initWithSender:(id)sender {
     if (self = [super init]) {
-        _monitorDict = [NSMutableDictionary dictionary];
+        _monitors = [NSHashTable weakObjectsHashTable];
         _sender = sender;
     }
     return self;
 }
 
 - (void)dealloc {
+    NSArray<DMInvocation *> *monitors = _monitors.allObjects;
     __strong id sender = _sender;
-    [_monitorDict enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, DMInvocation * _Nonnull obj, BOOL * _Nonnull stop) {
-        [obj invokeWithSender:sender];
-    }];
+    for (DMInvocation *monitor in monitors) {
+        [monitor invokeWithSender:sender];
+    }
 }
 
 - (void)addInvocation:(DMInvocation *)invocation {
     if (!invocation) return;
-    _monitorDict[invocation.dmiId] = invocation;
+    [_monitors addObject:invocation];
 }
 
 - (void)remiveInvocation:(DMInvocation *)invocation {
     if (!invocation) return;
-    _monitorDict[invocation.dmiId] = nil;
+    [_monitors removeObject:invocation];
 }
 
 @end
@@ -95,6 +88,7 @@ typedef void (*INVOKE)(id, SEL, id);
 @end
 
 @implementation NSObject (DeallocMonitor)
+
 - (DMDecorder *)dmDecorder {
     return objc_getAssociatedObject(self, @selector(dmDecorder));
 }
@@ -115,7 +109,7 @@ typedef void (*INVOKE)(id, SEL, id);
 
 - (void)removeDMInvocation:(DMInvocation *)invocation {
     if (!invocation) return;
-    [self.dmDecorder  remiveInvocation:invocation];
+    [self.dmDecorder remiveInvocation:invocation];
 }
 
 @end
@@ -128,7 +122,6 @@ typedef void (*INVOKE)(id, SEL, id);
     void(^_monitor)(DeallocMonitor *dm);
     DMInvocation *_invocation;
 }
-@synthesize dmId = _dmId, objId = _objId;
 
 + (instancetype)monitorWithObj:(id)obj objDelloc:(void(^)(DeallocMonitor *dm))monitor {
     if (!obj || !monitor) return nil;
@@ -138,7 +131,6 @@ typedef void (*INVOKE)(id, SEL, id);
 - (instancetype)initWithObj:(id)obj objDelloc:(void(^)(DeallocMonitor *dm))monitor {
     if (self = [super init]) {
         _weakObj = obj;
-        _objId = [NSString stringWithFormat:@"%ld", [obj hash]];
         _monitor = monitor;
         _invocation = [DMInvocation invocationWithTarget:self sel:@selector(weakObjDeallocMonitor)];
         [obj addDMInvocation:_invocation];
@@ -148,13 +140,6 @@ typedef void (*INVOKE)(id, SEL, id);
 
 - (id)obj {
     return _weakObj;
-}
-
-- (NSString *)dmId {
-    if (!_dmId) {
-        _dmId = [NSString stringWithFormat:@"%ld", self.hash];
-    }
-    return _dmId;
 }
 
 - (void)weakObjDeallocMonitor {
